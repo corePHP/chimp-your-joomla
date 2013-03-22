@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="jomDefender 3.0" default="build" basedir="./src">
+	<property name="joomla_version" value="3.0" />
+	<property name="plugin.name" value="jomdefender" />
+	<property name="plugin.path" value="plugins/system/${plugin.name}" />
+	<property name="plugin.language.path" value="administrator/language" />
+
+	<property name="package.folder" value="../build/packages" />
+	<property name="package.path" value="${package.folder}/${plugin.name}" />
+
+	<target name="build">
+		<phingcall target="init" />
+		<phingcall target="package_plugin" />
+	</target>
+
+	<target name="init">
+		<available file="${package.folder}" property="package.folder.exists" value="1" />
+		<if>
+			<equals arg1="${package.folder.exists}" arg2="1" />
+			<then>
+				<echo message="Deleting existing package folder..." />
+				<delete dir="${package.folder}" />
+			</then>
+		</if>
+
+		<mkdir dir="${package.folder}" />
+	</target>
+
+	<!-- Package component -->
+	<target name="package_plugin">
+		<echo message="Building plugin..." />
+		<copy todir="${package.path}">
+			<fileset dir="${plugin.path}" />
+		</copy>
+		<copy todir="${package.path}/language">
+			<fileset dir="${plugin.language.path}" />
+		</copy>
+
+		<exec command="xmllint --xpath '/extension/version/text()' ${plugin.path}/${plugin.name}.xml" outputProperty="version" />
+
+		<zip destfile="${package.folder}/plg_system_jomdefender_v${version}_j${joomla_version}.zip" basedir="${package.path}" />
+	</target>
+
+</project>

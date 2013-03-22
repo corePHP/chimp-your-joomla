@@ -1,0 +1,7 @@
+This is where a bunch of shit exists maybe the scripts don't go here but for right now they do.
+
+
+.gitignore in this directory should be used to ignore temp files may by scripts or teh build process
+
+scripts/setup --- sets up the symlink post-checkout script 
+scripts/post-checkout-hook -- is the hook script that symlinks based on config from setup

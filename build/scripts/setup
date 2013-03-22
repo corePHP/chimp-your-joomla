@@ -1,0 +1,236 @@
+#!/usr/bin/env php
+<?php
+
+class valid_input
+{
+	// need better valid checking
+	public function valid_string( $string )
+	{
+		if ( $string ) {
+			return true;
+		}
+		return false;
+	}
+
+	// need better valid checking
+	public function valid_int( $int )
+	{
+		if ( $int ) {
+			return true;
+		}
+		return false;
+	}
+
+	// need maybe some better checking
+	public function valid_path( $path )
+	{
+		if ( file_exists( $path ) ) {
+			return true;
+		}
+		return false;
+	}
+
+	public function valid_yesno( $yesno )
+	{
+		if ( $yesno === 'y' || $yesno === 'yes' ) {
+			return 'y';
+		}
+		if ( $yesno === 'n' || $yesno === 'no' ) {
+			return 'n';
+		}
+
+		return false;
+	}
+}
+
+class get_input
+{
+	private $actions = Array();
+	private $responses = Array();
+	private $input;
+
+	// don't know if really need this right now
+	public function __construct( $validizer_class )
+	{
+		$this->input = $validizer_class;
+	}
+
+	/**
+	 * Add input to ask for from user
+	 *
+	 * @param $msg string What do you want from user
+	 * @param $key string Value to be saved in config
+	 * @param $value_type string type of input to expect
+	 */
+	public function add( $msg, $key, $value_type, $default = null )
+	{
+		$action['msg'] = $msg;
+		$action['key'] = $key;
+		$action['value_type'] = $value_type;
+		$action['default'] = $default;
+
+		$this->actions[] = $action;
+		unset($action);
+	}
+
+	public function run()
+	{
+		$i = 0;
+		$countaction = count($this->actions);
+		// we want to redo if input isn't valid as many times as it takes or they get tired and
+		// do a ctrl-c
+		do {
+			$msg = $this->actions[$i]['msg'];
+			if ( $this->actions[$i]['default'] !== null ) {
+				$msg .= ' [' . $this->actions[$i]['default'] . ']';
+			}
+			$msg .= ': ';
+			fwrite( STDOUT, $msg );
+			$input = trim( fgets( STDIN ) );
+			if ( empty( $input ) && $this->actions[$i]['default'] !== null ) {
+				$this->responses[$this->actions[$i]['key']] = $this->actions[$i]['default'];
+				$i++;
+			} else {
+				$valid_func = "valid_". $this->actions[$i]['value_type'];
+				if ( $this->actions[$i]['value_type'] === 'yesno' ) {
+					if ( $this->input->$valid_func( $input ) === 'y' ) {
+						$this->responses[$this->actions[$i]['key']] = 1;
+						$i++;
+					} else if ( $this->input->$valid_func( $input ) === 'n' ) {
+						$this->responses[$this->actions[$i]['key']] = 0;
+						$i++;
+					} else {
+						echo "Please only use y|yes|n|no\n";
+					}
+				} else {
+					if ( $this->input->$valid_func( $input ) ) {
+						$this->responses[$this->actions[$i]['key']] = $input;
+						$i++;
+					} else {
+						echo "Please try again - not valid\n";
+					}
+				}
+			}
+		} while ( $countaction > $i );
+	}
+
+	public function get_responses()
+	{
+		return $this->responses;
+	}
+}
+
+
+class do_install
+{
+	private $responses;
+	private $ds = DIRECTORY_SEPARATOR;
+
+	public function __construct( $responses )
+	{
+		$this->responses = $responses;
+		if ( substr( $this->responses['root'], -1 ) !== $this->ds ) {
+			$this->responses['root'] .= $this->ds;
+		}
+		if ( substr( $this->responses['src'], -1 ) !== $this->ds ) {
+			$this->responses['src'] .= $this->ds;
+		}
+		if ( substr( $this->responses['build'], -1 ) !== $this->ds ) {
+			$this->responses['build'] .= $this->ds;
+		}
+		if ( substr( $this->responses['webroot'], -1 ) !== $this->ds ) {
+			$this->responses['webroot'] .= $this->ds;
+		}
+	}
+
+	private function write_config()
+	{
+		$config = "<?php\n"
+			.'$config = Array('."\n";
+
+		foreach ( $this->responses as $key => $value ) {
+			$config .= "\t'$key' => '$value',\n";
+		}
+
+		$config .= ');'."\n?>";
+		file_put_contents( $this->responses['build'] . $this->ds .'sym.php', $config );
+	}
+
+	private function install_hook()
+	{
+		// expecting to be ran in root of git repo not the best but fuck i've only spent an hour or 
+		// two on this shit and just want it to work
+		$src = $this->responses['build'] . 'scripts'. $this->ds . 'symlink';
+		$git_dir = $this->responses['root'] . '.git' . $this->ds;
+		$git_checkout_hook = $git_dir . 'hooks' . $this->ds . 'post-checkout';
+		if ( file_exists( $git_dir ) ) {
+			if ( file_exists( $git_checkout_hook ) ) {
+				if ( !unlink( $git_checkout_hook ) ) {
+					echo "Existing post-checkout hook can not delete. Nothing happened\n";
+					return;
+				}
+			}
+			if ( !copy( $src, $git_checkout_hook ) )  {
+				echo "Failed copying don't know why.\n";
+				return;
+			} else {
+				if ( chmod( $git_checkout_hook, 0750 ) ) {
+					echo "Successfully installed " . $git_checkout_hook . "\n";
+					return;
+				} else {
+					echo "Could not chmod of " . $git_checkout_hook . ".".
+						"\nYou may have to manually do chmod +x " . $git_checkout_hook .
+						"\n";
+					return;
+				}
+			}
+		} else {
+			echo "Root was not a git repo can not install hook.\n";
+			return;
+		}
+	}
+
+	public function install()
+	{
+		$this->write_config();
+
+		if ( $this->responses['checkout-hook'] == 'y' ) {
+			$this->install_hook();
+		}
+	}
+}
+
+function usage()
+{
+	echo <<<'EOF'
+This script collects info for symlinking between your repo and joomla install.
+Once the info is collect a git hook script will be installed into your .git folder.
+The hook will automatically re-symlink files when switching between branches.
+If you use spaces in directories names, i hope you die in a fire (especially since this
+will probably not work correctly).
+
+
+EOF;
+}
+
+$validizer = new valid_input();
+$input = new get_input( $validizer );
+
+if ( false !== ( $default_dir = getcwd() ) ) {
+	$default_build = $default_dir . DIRECTORY_SEPARATOR . 'build';
+	$default_src = $default_dir . DIRECTORY_SEPARATOR . 'src';
+}
+
+$input->add( 'Project root', 'root', 'path', $default_dir );
+$input->add( 'Build directory', 'build', 'path', $default_build );
+$input->add( 'Enable git post-checkout hook?', 'checkout-hook', 'yesno', 'y' );
+$input->add( 'Code source directory', 'src', 'path', $default_src );
+$input->add( 'Joomla install directory', 'webroot', 'path' );
+
+usage();
+$input->run();
+
+$installer = new do_install( $input->get_responses()  );
+$installer->install();
+
+// :vim set filetype=php:

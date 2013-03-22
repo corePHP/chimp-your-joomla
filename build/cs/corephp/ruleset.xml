@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<ruleset name="corephp">
+	<description>corePHP coding standards</description>
+
+	<rule ref="Generic.CodeAnalysis.EmptyStatement" />
+	<rule ref="Generic.CodeAnalysis.UnusedFunctionParameter" />
+	<rule ref="Generic.CodeAnalysis.UselessOverridingMethod" />
+	<rule ref="Generic.Functions.CallTimePassByReference" />
+	<rule ref="Generic.Functions.OpeningFunctionBraceBsdAllman" />
+	<rule ref="Generic.NamingConventions.ConstructorName" />
+	<rule ref="Generic.PHP.DeprecatedFunctions" />
+	<rule ref="Squiz.ControlStructures.ControlSignature" />
+	<rule ref="Squiz.WhiteSpace.SuperfluousWhitespace" />
+
+	<!-- We only want Unix newlines -->
+	<rule ref="Generic.Files.LineEndings">
+		<properties>
+			<property name="eolChar" value="\n"/>
+		</properties>
+	</rule>
+
+	<rule ref="Generic.Files.LineLength">
+		<properties>
+			<!-- Gives warnings if over 100 -->
+			<property name="lineLimit" value="100" />
+			<!-- Gives Errors if over 110 -->
+			<property name="absoluteLineLimit" value="110" />
+		</properties>
+	</rule>
+</ruleset>

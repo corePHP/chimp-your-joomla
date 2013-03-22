@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension version="1.6" type="plugin" group="user">
+	<name>MailChimp</name>
+	<author>Steven Pignataro</author>
+	<creationDate>November 2009</creationDate>
+	<copyright>Copyright (C) 2009 'corePHP', LLC. All rights reserved.</copyright>
+	<license>http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL</license>
+	<authorEmail>support@corephp.com</authorEmail>
+	<authorUrl>www.corephp.com</authorUrl>
+	<version>1.1</version>
+	<description>Mailchimp registration plugin</description>
+	<files>
+		<filename plugin="mailchimp">mailchimp.php</filename>
+		<filename>MCAPI.class.php</filename>
+	</files>
+	<config><fields name="params"><fieldset name="basic">
+		<field name="mc_username" type="text" default="" label="MailChimp API" description="Your MailChimp API Key for authentication of your account for your maillists." />
+		<field name="mc_listid" type="text" default="" label="MailChimp List ID" description="Your MailChimp list id for the list you people to sign up to. Grab your List's Unique Id by going to http://admin.mailchimp.com/lists/. Click the settings link for the list - the Unique Id is at the bottom of that page."/>
+		<field name="mc_autoregister" type="radio" default="1" label="Auto Register Users" description="If turned on your users will automatically be part of your mailing list. If set to no - your users will need to opt-in via email.">
+			<option value="0">Yes</option>
+			<option value="1">No</option>
+		</field>
+	</fieldset></fields></config>
+</extension>

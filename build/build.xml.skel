@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="{PROJECT_NAME}" default="{DEFAULT_TARGET}" basedir="{BASE_DIR}">
+	{PROPERTIES}
+	{TARGETS}
+</project>

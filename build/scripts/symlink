@@ -1,0 +1,156 @@
+#!/usr/bin/env php
+<?php
+
+function usage()
+{
+	echo <<<'EOF'
+Use to manually symlink files from a src directory to a webroot directory
+
+usage:
+
+Use the default options from sym.php configuration and do a manual symlink
+	symlink
+
+Symlink the current src from sym.php to a different webroot manually
+	symlink /path/to/webroot
+
+Symlink a specific src to a specifc webroot manually
+	symlink /path/to/src /path/to/webroot
+
+options:
+	-h,--h,help		shows this message
+
+
+
+EOF;
+}
+
+function read_config()
+{
+	// expected to be ran from the root of the repo so if it doesn't work oh well
+	include('build/sym.php');
+	return $config;
+}
+
+function symlink_files( $config )
+{
+	// just because no real reason other then i don't want to deal with array syntax later
+	$src_dir = $config['src'];
+	$web_dir = $config['webroot'];
+
+	if ( substr( $src_dir, -1 ) !== '/' ) {
+		$src_dir .= '/';
+	}
+	if ( substr( $web_dir, -1 ) !== '/' ) {
+		$web_dir .= '/';
+	}
+
+	/* we are going to mess with some graph theroy and do symlinks via BFS
+	 * this way we aren't symlinking every single file but only the outer most file or directory
+	 * that doesn't exist in the webroot. Hopefully it makes it some what fast.
+	 * "Watch out Guys, we're dealing with a badass over here" -- rage comic
+	*/
+	$dir_q = array( $src_dir => null );
+	while ( !empty($dir_q) ) {
+		foreach( $dir_q as $dir => $temp ) {
+			unset($dir_q[$dir]);
+			break;
+		}
+
+		unset($temp);
+
+		$dh = @opendir( $dir );
+		if ( !$dh ) {
+			continue;
+		}
+
+		while( false !== ($filename = readdir($dh)) ) {
+			if ( $filename == '.' || $filename == '..' || $filename == '.gitignore' ) {
+				continue;
+			}
+			// get full path and then get full path for webroot
+			$src_file = $dir . $filename;
+			$web_file = str_replace( $src_dir, $web_dir, $src_file );
+			unset($filename);
+
+			/* since we build the path from within the src dirctory we assume if the file
+			* is linked in the web directory we don't need to link again
+			*/
+			if ( is_link( $web_file ) ) {
+				continue;
+			}
+
+			// if the file/directory doesn't exist in the web root lets symlink it
+			if ( !file_exists( $web_file ) ) {
+				if ( !symlink( $src_file, $web_file ) ) {
+					echo "Could not symlink $web_file.\n";
+				}
+				continue;
+			}
+
+			// if we end up here then the file/directory already exists in the web root
+			if ( is_dir( $src_file ) ) {
+				if ( substr( $src_file, -1 ) !== '/' ) {
+					$src_file .= '/';
+				}
+
+				$dir_q[$src_file] = null;
+			}
+		}
+		closedir( $dh );
+	}
+}
+
+function exists( $path )
+{
+	if ( file_exists( $path ) && is_dir( $path ) ) {
+		return true;
+	}
+
+	echo $path . " - is not a directory\n";
+	return false;
+}
+
+function main( $argc, $argv )
+{
+	$config = read_config();
+
+	foreach( $argv as $v ) {
+		if ( $v === '-h' || $v === '--h' || $v === 'help' ) {
+			usage();
+			return 0;
+		}
+	}
+
+	if ( $argc === 1 ) {
+		symlink_files($config);
+	}
+
+	if ( $argc === 2 ) {
+
+		if ( exists( $argv[1] ) ) {
+			symlink_files( array( 'src' => $config['src'], 'webroot' => $argv[1] ) );
+		} else {
+			usage();
+			return 1;
+		}
+	}
+
+	if ( $argc === 3 ) {
+		if ( exists( $argv[1] ) && exists( $argv[2] ) ) {
+			symlink_files( array( 'src' => $argv[1], 'webroot' => $argv[2] ) );
+		} else {
+			usage();
+			return 1;
+		}
+	}
+
+	if ( $argc === 4 ) {
+		symlink_files($config);
+	}
+
+	return 0;
+}
+
+main( $argc, $argv );
+// :vim set filetype=php:
