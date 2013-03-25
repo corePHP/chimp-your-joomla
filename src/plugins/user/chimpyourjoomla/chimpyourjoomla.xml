@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension version="3.0" type="plugin" group="user" method="upgrade">
+	<name>Chimp Your Joomla!</name>
+	<author>Steven Pignataro</author>
+	<creationDate>November 2009</creationDate>
+	<copyright>Copyright 2013 'corePHP', LLC. All rights reserved.</copyright>
+	<license>http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL</license>
+	<authorEmail>support@corephp.com</authorEmail>
+	<authorUrl>www.corephp.com</authorUrl>
+	<version>1.1</version>
+	<description>CJY_DESC</description>
+
+	<files>
+		<filename plugin="chimpyourjoomla">chimpyourjoomla.php</filename>
+		<folder>language</folder>
+	</files>
+
+	<languages folder="language">
+		<language tag="en-GB">en-GB/en-GB.plg_user_chimpyourjoomla.sys.ini</language>
+	</languages>
+
+	<config>
+		<fields name="params">
+			<fieldset name="basic">
+				<field name="mc_username" type="text" default="" label="CYJ_MC_ID" description="CYJ_MC_ID_DESC" />
+				<field name="mc_listid" type="text" default="" label="CYJ_MC_LIST_ID" description="CYJ_MC_LIST_ID_DESC"/>
+				<field name="mc_autoregister" type="radio" default="1" label="CYJ_MC_AUTO_REGISTER" description="CYJ_MC_AUTO_REGISTER_DESC">
+					<option value="0">CYJ_YES</option>
+					<option value="1">CYJ_NO</option>
+				</field>
+			</fieldset>
+		</fields>
+	</config>
+</extension>
