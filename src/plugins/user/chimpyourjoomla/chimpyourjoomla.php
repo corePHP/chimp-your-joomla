@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   Chimp Your Joomla!
- * @copyright (C) 2001 by 'corePHP' - All rights reserved!
+ * @copyright (C) 2011 by 'corePHP' - All rights reserved!
  * @license   GNU/GPL2
  */
 // Check to ensure this file is included in Joomla!
@@ -19,9 +19,6 @@ class plgUserMailchimp extends JPlugin
 
 	function onUserAfterSave($user, $isnew, $success, $msg)
 	{
-		global $mainframe;
-
-
 		if($user) {
 			// Lets pull the API layer
 			require_once(JPATH_PLUGINS.'/user/chimpyourjoomla/includes/MCAPI.class.php');

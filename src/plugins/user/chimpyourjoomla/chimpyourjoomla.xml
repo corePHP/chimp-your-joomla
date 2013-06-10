@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<extension version="3.0" type="plugin" group="user" method="upgrade">
+<extension version="2.5" type="plugin" group="user" method="upgrade">
 	<name>Chimp Your Joomla!</name>
 	<author>Steven Pignataro</author>
 	<creationDate>November 2009</creationDate>
