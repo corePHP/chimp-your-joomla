@@ -9,16 +9,17 @@ defined('_JEXEC') or die( 'Restricted access' );
 
 jimport('joomla.plugin.plugin');
 
-class plgUserMailchimp extends JPlugin
+class plgUserChimpyourjoomla extends JPlugin
 {
 
-	function plgUserMailchimp(& $subject, $config)
+	function plgChimpyourjoomla(& $subject, $config)
 	{
 		parent::__construct($subject, $config);
 	}
 
 	function onUserAfterSave($user, $isnew, $success, $msg)
 	{
+		
 		if($user) {
 			// Lets pull the API layer
 			require_once(JPATH_PLUGINS.'/user/chimpyourjoomla/includes/MCAPI.class.php');

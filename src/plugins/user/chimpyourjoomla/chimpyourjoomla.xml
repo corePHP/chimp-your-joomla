@@ -13,6 +13,7 @@
 	<files>
 		<filename plugin="chimpyourjoomla">chimpyourjoomla.php</filename>
 		<folder>language</folder>
+		<folder>includes</folder>
 	</files>
 
 	<languages folder="language">
