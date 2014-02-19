@@ -1,16 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="Chimp Your Joomla! 3.0" default="build" basedir="./src">
-	<property name="joomla_version" value="3.0" />
-	<property name="plugin.name" value="chimpyourjoomla" />
-	<property name="plugin.path" value="plugins/user/${plugin.name}" />
-	<property name="plugin.language.path" value="administrator/language" />
+	<property name="joomla_version" value="2.5-3.0" />
+	<property name="basic.name" value="chimpyourjoomla" />
+	<property name="basic.path" value="plugins/user/${basic.name}" />
+	<property name="basic.language.path" value="administrator/language" />
+	<property name="pro.name" value="chimpyourjoomlapro" />
+	<property name="pro.path" value="plugins/system/${pro.name}" />
+	<property name="pro.language.path" value="administrator/language" />
 
 	<property name="package.folder" value="../build/packages" />
-	<property name="package.path" value="${package.folder}/${plugin.name}" />
+	<property name="package.basic.path" value="${package.folder}/${basic.name}" />
+	<property name="package.pro.path" value="${package.folder}/${pro.name}" />
 
 	<target name="build">
 		<phingcall target="init" />
-		<phingcall target="package_plugin" />
+		<phingcall target="package_basic_plugin" />
+		<phingcall target="package_pro_plugin" />
 	</target>
 
 	<target name="init">
@@ -27,18 +32,31 @@
 	</target>
 
 	<!-- Package component -->
-	<target name="package_plugin">
-		<echo message="Building plugin..." />
-		<copy todir="${package.path}">
-			<fileset dir="${plugin.path}" />
+	<target name="package_basic_plugin">
+		<echo message="Building basic..." />
+		<copy todir="${package.basic.path}">
+			<fileset dir="${basic.path}" />
 		</copy>
-		<copy todir="${package.path}/language">
-			<fileset dir="${plugin.language.path}" />
+		<copy todir="${package.basic.path}/language">
+			<fileset dir="${basic.language.path}" />
 		</copy>
 
-		<exec command="xmllint --xpath '/extension/version/text()' ${plugin.path}/${plugin.name}.xml" outputProperty="version" />
+		<exec command="xmllint --xpath '/extension/version/text()' ${basic.path}/${basic.name}.xml" outputProperty="version" />
 
-		<zip destfile="${package.folder}/plg_user_${plugin.name}_v${version}_j${joomla_version}.zip" basedir="${package.path}" />
+		<zip destfile="${package.folder}/plg_user_${basic.name}_v${version}_j${joomla_version}.zip" basedir="${package.basic.path}" />
 	</target>
 
+	<target name="package_pro_plugin">
+		<echo message="Building pro..." />
+		<copy todir="${package.pro.path}">
+			<fileset dir="${pro.path}" />
+		</copy>
+		<copy todir="${package.pro.path}/language">
+			<fileset dir="${pro.language.path}" />
+		</copy>
+
+		<exec command="xmllint --xpath '/extension/version/text()' ${pro.path}/${pro.name}.xml" outputProperty="version" />
+
+		<zip destfile="${package.folder}/plg_system_${pro.name}_v${version}_j${joomla_version}.zip" basedir="${package.pro.path}" />
+	</target>
 </project>
