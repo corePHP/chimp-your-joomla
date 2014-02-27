@@ -48,7 +48,20 @@ class plgSystemChimpYourJoomlaPro extends JPlugin
 				}
 				mc::add( $mc, $chimp_list, $user['email'], $mergeVars, $chimp_auto );
 			} else {
-				mc::update( $mc, $chimp_list, $user['email'], $mergeVars );
+				// Need to check to see if the users exists first
+				$exists = mc::memberinfo( $mc, $chimp_list, $user['email'] );
+				if( !empty( $exists['data'] ) ) {
+					// Lets test to see if we are in any of the lists
+					foreach( $exists['data'] as $data ) {
+						if( $data['list_id'] == $chimp_list ) {
+							mc::update( $mc, $chimp_list, $user['email'], $mergeVars );
+						} else {
+							mc::add( $mc, $chimp_list, $user['email'], $mergeVars, $chimp_auto );
+						}
+					}
+				} else {
+					mc::add( $mc, $chimp_list, $user['email'], $mergeVars, $chimp_auto );
+				}
 			}
 		}
 	}
