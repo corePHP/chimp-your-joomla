@@ -157,7 +157,7 @@ class mc
 
     public function unsubscribe( $api, $list_id, $email, $delete_member, $send_goodbye )
     {
-        $unsubscribe = $api->call( 'lists/update-member',
+        $unsubscribe = $api->call( 'lists/unsubscribe',
                         array(
                                 'id' => $list_id,
                                 'email' => array( 'email' => $email ),
