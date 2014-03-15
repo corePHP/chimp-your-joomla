@@ -124,7 +124,7 @@ class mc
 
 	public function add( $api, $list_id, $email, $mergeVars, $chimp_auto )
 	{
-		$subscribe = $api->call( 'lists/subscribe',
+		return $api->call( 'lists/subscribe',
 						array(
 								'id' => $list_id,
 								'email' => array( 'email' => $email ),
@@ -132,32 +132,22 @@ class mc
 								'double_optin' => $chimp_auto
 						)
 					);
-		if( $subscribe['status'] == 'error' ) {
-			return true; // We got an error - lets move forward
-		} else {
-			return false; // Lets not move forward because the user exists and was updated
-		}
 	}
 
 	public function update( $api, $list_id, $email, $mergeVars )
 	{
-		$subscribe = $api->call( 'lists/update-member',
+		return $api->call( 'lists/update-member',
 						array(
 								'id' => $list_id,
 								'email' => array( 'email' => $email ),
 								'merge_vars' => $mergeVars
 						)
 					);
-		if( $subscribe['status'] == 'error' ) {
-			return true; // We got an error - lets move forward
-		} else {
-			return false; // Lets not move forward because the user exists and was updated
-		}
 	}
 
 	public function unsubscribe( $api, $list_id, $email, $delete_member, $send_goodbye )
 	{
-		$unsubscribe = $api->call( 'lists/unsubscribe',
+		return $api->call( 'lists/unsubscribe',
 						array(
 								'id' => $list_id,
 								'email' => array( 'email' => $email ),
@@ -165,16 +155,11 @@ class mc
 								'send_goodbye' => $send_goodbye
 						)
 					);
-		if( $unsubscribe['status'] == 'error' ) {
-			return true; // We got an error - lets move forward
-		} else {
-			return false; // Lets not move forward because the user exists and was updated
-		}
 	}
 
 	public function batch_update( $api, $list_id, $batch, $chimp_auto )
 	{
-		$subscribe = $api->call( 'lists/batch-subscribe',
+		return $api->call( 'lists/batch-subscribe',
 						array(
 								'id' => $list_id,
 								'batch' => $batch,
@@ -182,21 +167,15 @@ class mc
 								'update_existing' => true
 						)
 					);
-		if( $subscribe['status'] == 'error' ) {
-			return true; // We got an error - lets move forward
-		} else {
-			return false; // Lets not move forward because the user exists and was updated
-		}
 	}
 
 	public function memberinfo( $api, $list_id, $email )
 	{
-		$memberinfo = $api->call( 'lists/member-info',
+		return $api->call( 'lists/member-info',
 						array(
 								'id' => $list_id,
 								'emails' => array( array( 'email' => $email ) )
 						)
 					);
-		return $memberinfo;
 	}
 }
