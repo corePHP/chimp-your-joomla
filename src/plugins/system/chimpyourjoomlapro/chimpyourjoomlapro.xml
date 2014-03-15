@@ -16,7 +16,7 @@
 	</files>
 
 	<languages folder="language">
-		<language tag="en-GB">en-GB.plg_system_chimpyourjoomlapro.sys.ini</language>
+		<language tag="en-GB">en-GB/en-GB.plg_system_chimpyourjoomlapro.sys.ini</language>
    	</languages>
 
 	<config>
