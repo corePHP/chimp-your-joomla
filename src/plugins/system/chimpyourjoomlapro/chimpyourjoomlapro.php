@@ -31,36 +31,30 @@ class plgSystemChimpYourJoomlaPro extends JPlugin
 			// Create a First and Last Name and place it in the $mergeVars
 			$name = explode( ' ', $user['name'] );
 
-			$mergeVars = array(	'FNAME'=>$name[0],
-								'LNAME'=>$name[1]
+			$mergeVars = array(	'MERGE1'=>$name[0],
+								'MERGE2'=>$name[1]
 								);
-
-			if( $chimp_auto == 1 ) {
-				$chimp_auto = true;
-			} else {
-				$chimp_auto = false;
-			}
 
 			if ( $isnew ) {
 				// Check to see if they opts out of registering only on frontend
 				if( !JFactory::getApplication()->input->get( 'chimpyourjoomlapro', 0, '', 'int' ) && JFactory::getApplication()->isSite() ) {
 					return;
 				}
-				mc::add( $mc, $chimp_list, $user['email'], $mergeVars, $chimp_auto );
+				$added = mc::add( $mc, $chimp_list, $user['email'], $mergeVars, $chimp_auto );
 			} else {
 				// Need to check to see if the users exists first
 				$exists = mc::memberinfo( $mc, $chimp_list, $user['email'] );
 				if( !empty( $exists['data'] ) ) {
 					// Lets test to see if we are in any of the lists
 					foreach( $exists['data'] as $data ) {
-						if( $data['list_id'] == $chimp_list ) {
-							mc::update( $mc, $chimp_list, $user['email'], $mergeVars );
+						if( $data['list_id'] === $chimp_list ) {
+							$update = mc::update( $mc, $chimp_list, $user['email'], $mergeVars );
 						} else {
-							mc::add( $mc, $chimp_list, $user['email'], $mergeVars, $chimp_auto );
+							$added = mc::add( $mc, $chimp_list, $user['email'], $mergeVars, $chimp_auto );
 						}
 					}
 				} else {
-					mc::add( $mc, $chimp_list, $user['email'], $mergeVars, $chimp_auto );
+					$added = mc::add( $mc, $chimp_list, $user['email'], $mergeVars, $chimp_auto );
 				}
 			}
 		}
@@ -85,12 +79,12 @@ class plgSystemChimpYourJoomlaPro extends JPlugin
 
 			// Lets check some stuff.
 			if( $this->params->get( 'chimp_delete_user' ) ) {
-				mc::unsubscribe( $mc, $chimp_list, $user['email'], true, $chimp_goodbye );
+				$deleted = mc::unsubscribe( $mc, $chimp_list, $user['email'], true, $chimp_goodbye );
 				return;
 			}
 
 			if( $this->params->get( 'chimp_unsubscribe_user' ) ) {
-				mc::unsubscribe( $mc, $chimp_list, $user['email'], false, $chimp_goodbye );
+				$unsubscribe = mc::unsubscribe( $mc, $chimp_list, $user['email'], false, $chimp_goodbye );
 				return;
 			}
 		}
