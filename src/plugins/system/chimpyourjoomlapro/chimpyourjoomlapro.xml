@@ -43,7 +43,7 @@
 				<field
 					name="chimp_layout"
 					type="textarea"
-					default="CYJ_CHIMP_LAYOUT"
+					default=""
 					cols="50"
 					rows="10"
 					filter="raw"
@@ -53,7 +53,7 @@
 				<field
 					name="chimp_caption"
 					type="text"
-					default="CYJ_CAPTION"
+					default="Subscribe"
 					description="CYJ_CAPTION_DESC"
 					label="CYJ_CAPTION">
 				</field>
@@ -63,8 +63,8 @@
 					default="1"
 					label="CYJ_MC_AUTO_REGISTER"
 					description="CYJ_MC_AUTO_REGISTER_DESC">
-						<option value="1">CYJ_YES</option>
-						<option value="0">CYJ_NO</option>
+						<option value="true">CYJ_YES</option>
+						<option value="false">CYJ_NO</option>
 				</field>
 				<field
 					name="chimp_unsubscribe_user"
