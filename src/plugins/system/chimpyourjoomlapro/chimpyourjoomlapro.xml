@@ -7,7 +7,7 @@
 	<authorUrl>http://www.corephp.com</authorUrl>
 	<copyright>(C) 2014 'corePHP', All rights reserved.</copyright>
 	<license>http://www.gnu.org/copyleft/gpl.html GNU/GPL</license>
-	<version>1.0.2</version>
+	<version>1.0.3</version>
 	<description>CYJ_DESC</description>
 
 	<files>
@@ -63,8 +63,8 @@
 					default="1"
 					label="CYJ_MC_AUTO_REGISTER"
 					description="CYJ_MC_AUTO_REGISTER_DESC">
-						<option value="true">CYJ_YES</option>
-						<option value="false">CYJ_NO</option>
+						<option value="1">CYJ_YES</option>
+						<option value="0">CYJ_NO</option>
 				</field>
 				<field
 					name="chimp_unsubscribe_user"

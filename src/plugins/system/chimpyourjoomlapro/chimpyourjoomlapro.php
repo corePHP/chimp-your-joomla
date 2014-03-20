@@ -35,6 +35,12 @@ class plgSystemChimpYourJoomlaPro extends JPlugin
 								'MERGE2'=>$name[1]
 								);
 
+			if( $chimp_auto == 1 ) {
+				$chimp_auto = true;
+			} else {
+				$chimp_auto = false;
+			}
+
 			if ( $isnew ) {
 				// Check to see if they opts out of registering only on frontend
 				if( !JFactory::getApplication()->input->get( 'chimpyourjoomlapro', 0, '', 'int' ) && JFactory::getApplication()->isSite() ) {
