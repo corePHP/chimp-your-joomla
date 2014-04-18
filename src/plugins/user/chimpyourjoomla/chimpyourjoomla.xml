@@ -17,6 +17,7 @@
 
 	<languages folder="language">
 		<language tag="en-GB">en-GB.plg_user_chimpyourjoomla.ini</language>
+		<language tag="en-GB">en-GB.plg_user_chimpyourjoomla.sys.ini</language>
    	</languages>
 
 	<config>
