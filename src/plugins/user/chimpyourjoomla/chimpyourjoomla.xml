@@ -11,7 +11,7 @@
 	<description>CYJ_DESC</description>
 
 	<files>
-		<filename plugin="chimpyourjoomlapro">chimpyourjoomlapro.php</filename>
+		<filename plugin="chimpyourjoomla">chimpyourjoomla.php</filename>
 		<folder>includes</folder>
 	</files>
 
