@@ -7,7 +7,7 @@
 	<authorUrl>http://www.corephp.com</authorUrl>
 	<copyright>(C) 2014 'corePHP', All rights reserved.</copyright>
 	<license>http://www.gnu.org/copyleft/gpl.html GNU/GPL</license>
-	<version>1.0.3</version>
+	<version>1.0.5</version>
 	<description>CYJ_DESC</description>
 
 	<files>
@@ -41,7 +41,7 @@
 				</field>
 			</fieldset>
 			<fieldset name="advanced">
-				<field
+				<!-- <field
 					name="chimp_layout"
 					type="textarea"
 					default=""
@@ -50,7 +50,7 @@
 					filter="raw"
 					description="CYJ_OUTPUT_DESC"
 					label="CYJ_OUTPUT">
-				</field>
+				</field> -->
 				<field
 					name="chimp_caption"
 					type="text"

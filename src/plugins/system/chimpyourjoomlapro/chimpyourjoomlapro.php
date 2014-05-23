@@ -117,7 +117,7 @@ class plgSystemChimpYourJoomlaPro extends JPlugin
 		$lang->load($extension, $base_dir, $language_tag, true);
 
 		// Get the parameters
-		$chimp_layout = $this->params->get('chimp_layout', '<p><input type="checkbox" id="chimpyourjoomlapro" name="chimpyourjoomlapro" value="1" checked="checked" /> [caption]</p>');
+		$chimp_layout = '<p><input type="checkbox" id="chimpyourjoomlapro" name="chimpyourjoomlapro" value="1" checked="checked" /> [caption]</p>';
 		$chimp_layout = str_replace( '[caption]', $this->params->get( 'chimp_caption', JText::_( 'CYJ_SUBSCRIBE' ) ) , $chimp_layout );
 
 		// Include required files
