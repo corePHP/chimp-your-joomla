@@ -9,7 +9,7 @@ defined( '_JEXEC' ) or die( 'Restricted index access' );
 
 jimport('joomla.plugin.plugin');
 
-class plgSystemChimpYourJoomla extends JPlugin
+class plgUserChimpYourJoomla extends JPlugin
 {
 	function onUserAfterSave( $user, $isnew, $success, $msg )
 	{
