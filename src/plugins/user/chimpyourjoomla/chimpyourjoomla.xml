@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <extension version="2.5" type="plugin" group="user" method="upgrade">
-	<name>System - Chimp Your Joomla!</name>
+	<name>User - Chimp Your Joomla!</name>
 	<creationDate>Feb 2014</creationDate>
 	<author>'corePHP'</author>
 	<authorEmail>support@corephp.com</authorEmail>
