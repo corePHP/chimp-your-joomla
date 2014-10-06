@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension version="2.5" type="plugin" group="user" method="upgrade">
+	<name>User - Chimp Your Joomla! Pro</name>
+	<creationDate>Feb 2014</creationDate>
+	<author>'corePHP'</author>
+	<authorEmail>support@corephp.com</authorEmail>
+	<authorUrl>http://www.corephp.com</authorUrl>
+	<copyright>(C) 2014 'corePHP', All rights reserved.</copyright>
+	<license>http://www.gnu.org/copyleft/gpl.html GNU/GPL</license>
+	<version>1.0.5</version>
+	<description>CYJ_DESC</description>
+
+	<files>
+		<filename plugin="chimpyourjoomlapro">chimpyourjoomlapro.php</filename>
+		<folder>includes</folder>
+	</files>
+
+	<languages folder="language">
+		<language tag="en-GB">en-GB/en-GB.plg_user_chimpyourjoomlapro.ini</language>
+		<language tag="en-GB">en-GB/en-GB.plg_user_chimpyourjoomlapro.sys.ini</language>
+   	</languages>
+
+	<config>
+		<fields name="params">
+			<fieldset name="basic">
+				<field
+					name="chimp_api"
+					type="text"
+					default=""
+					size="50"
+					description="CYJ_MC_ID_DESC"
+					label="CYJ_MC_ID">
+				</field>
+				<field
+					name="chimp_list"
+					type="text"
+					default=""
+					size="50"
+					description="CYJ_MC_LIST_ID_DESC"
+					label="CYJ_MC_LIST_ID">
+				</field>
+			</fieldset>
+			<fieldset name="advanced">
+				<field
+					name="chimp_auto"
+					type="radio"
+					default="1"
+					label="CYJ_MC_AUTO_REGISTER"
+					description="CYJ_MC_AUTO_REGISTER_DESC">
+						<option value="1">CYJ_YES</option>
+						<option value="0">CYJ_NO</option>
+				</field>
+				<field
+					name="chimp_unsubscribe_user"
+					type="radio"
+					default="0"
+					label="CYJ_MC_UNSUBSCRIBE_USER"
+					description="CYJ_MC_UNSUBSCRIBE_USER_DESC">
+						<option value="1">CYJ_YES</option>
+						<option value="0">CYJ_NO</option>
+				</field>
+				<field
+					name="chimp_delete_user"
+					type="radio"
+					default="0"
+					label="CYJ_MC_DELETE_USER"
+					description="CYJ_MC_DELETE_USER_DESC">
+						<option value="1">CYJ_YES</option>
+						<option value="0">CYJ_NO</option>
+				</field>
+				<field
+					name="chimp_goodbye"
+					type="radio"
+					default="0"
+					label="CYJ_MC_GOODBYE"
+					description="CYJ_MC_GOODBYE_DESC">
+						<option value="1">CYJ_YES</option>
+						<option value="0">CYJ_NO</option>
+				</field>
+			</fieldset>
+		</fields>
+	</config>
+</extension>

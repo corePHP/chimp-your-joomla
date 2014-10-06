@@ -24,75 +24,11 @@
 		<fields name="params">
 			<fieldset name="basic">
 				<field
-					name="chimp_api"
-					type="text"
-					default=""
-					size="50"
-					description="CYJ_MC_ID_DESC"
-					label="CYJ_MC_ID">
-				</field>
-				<field
-					name="chimp_list"
-					type="text"
-					default=""
-					size="50"
-					description="CYJ_MC_LIST_ID_DESC"
-					label="CYJ_MC_LIST_ID">
-				</field>
-			</fieldset>
-			<fieldset name="advanced">
-				<!-- <field
-					name="chimp_layout"
-					type="textarea"
-					default=""
-					cols="50"
-					rows="10"
-					filter="raw"
-					description="CYJ_OUTPUT_DESC"
-					label="CYJ_OUTPUT">
-				</field> -->
-				<field
 					name="chimp_caption"
 					type="text"
 					default="Subscribe"
 					description="CYJ_CAPTION_DESC"
 					label="CYJ_CAPTION">
-				</field>
-				<field
-					name="chimp_auto"
-					type="radio"
-					default="1"
-					label="CYJ_MC_AUTO_REGISTER"
-					description="CYJ_MC_AUTO_REGISTER_DESC">
-						<option value="1">CYJ_YES</option>
-						<option value="0">CYJ_NO</option>
-				</field>
-				<field
-					name="chimp_unsubscribe_user"
-					type="radio"
-					default="0"
-					label="CYJ_MC_UNSUBSCRIBE_USER"
-					description="CYJ_MC_UNSUBSCRIBE_USER_DESC">
-						<option value="1">CYJ_YES</option>
-						<option value="0">CYJ_NO</option>
-				</field>
-				<field
-					name="chimp_delete_user"
-					type="radio"
-					default="0"
-					label="CYJ_MC_DELETE_USER"
-					description="CYJ_MC_DELETE_USER_DESC">
-						<option value="1">CYJ_YES</option>
-						<option value="0">CYJ_NO</option>
-				</field>
-				<field
-					name="chimp_goodbye"
-					type="radio"
-					default="0"
-					label="CYJ_MC_GOODBYE"
-					description="CYJ_MC_GOODBYE_DESC">
-						<option value="1">CYJ_YES</option>
-						<option value="0">CYJ_NO</option>
 				</field>
 			</fieldset>
 		</fields>
