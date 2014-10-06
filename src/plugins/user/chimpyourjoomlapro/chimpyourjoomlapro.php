@@ -31,8 +31,8 @@ class plgUserChimpYourJoomlaPro extends JPlugin
 			// Create a First and Last Name and place it in the $mergeVars
 			$name = explode( ' ', $user['name'] );
 
-			$mergeVars = array(	'MERGE1'=>$name[0],
-								'MERGE2'=>$name[1]
+			$mergeVars = array(	'FNAME'=>$name[0],
+								'LNAME'=>$name[1]
 								);
 
 			if( $chimp_auto == 1 ) {
@@ -42,10 +42,6 @@ class plgUserChimpYourJoomlaPro extends JPlugin
 			}
 
 			if ( $isnew ) {
-				// Check to see if they opts out of registering only on frontend
-				if( !JFactory::getApplication()->input->get( 'chimpyourjoomlapro', 0, '', 'int' ) && JFactory::getApplication()->isSite() ) {
-					return;
-				}
 				$added = mc::add( $mc, $chimp_list, $user['email'], $mergeVars, $chimp_auto );
 			} else {
 				// Need to check to see if the users exists first
