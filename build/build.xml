@@ -4,9 +4,13 @@
 	<property name="basic.name" value="chimpyourjoomla" />
 	<property name="basic.path" value="plugins/user/${basic.name}" />
 	<property name="basic.language.path" value="administrator/language" />
+	<!-- Pro Package -->
 	<property name="pro.name" value="chimpyourjoomlapro" />
-	<property name="pro.path" value="plugins/system/${pro.name}" />
-	<property name="pro.language.path" value="administrator/language" />
+	<!-- System Plugin -->
+	<property name="pros.path" value="plugins/system/${pro.name}" />
+	<property name="pros.language.path" value="administrator/language/en-GB" />
+	<property name="prou.path" value="plugins/user/${pro.name}" />
+	<property name="prou.language.path" value="administrator/language/en-GB" />
 
 	<property name="package.folder" value="../build/packages" />
 	<property name="package.basic.path" value="${package.folder}/${basic.name}" />
@@ -15,6 +19,8 @@
 	<target name="build">
 		<phingcall target="init" />
 		<phingcall target="package_basic_plugin" />
+		<phingcall target="package_pros_plugin" />
+		<phingcall target="package_prou_plugin" />
 		<phingcall target="package_pro_plugin" />
 	</target>
 
@@ -46,17 +52,48 @@
 		<zip destfile="${package.folder}/plg_user_${basic.name}_v${version}_j${joomla_version}.zip" basedir="${package.basic.path}" />
 	</target>
 
+
+	<target name="package_pros_plugin">
+		<echo message="Building pro system..." />
+		<copy todir="${package.pro.path}/system">
+			<fileset dir="${pros.path}" />
+		</copy>
+		<copy todir="${package.pro.path}/system/language/en-GB">
+			<fileset dir="${pros.language.path}">
+				<include name="en-GB.plg_system_chimpyourjoomlapro.ini" />
+			    <include name="en-GB.plg_system_chimpyourjoomlapro.sys.ini" />
+    		</fileset>
+		</copy>
+
+		<mkdir dir="${package.pro.path}/final" />
+		<zip destfile="${package.pro.path}/final/chimpyourjoomlapro_system.zip" basedir="${package.pro.path}/system" />
+	</target>
+	<target name="package_prou_plugin">
+		<echo message="Building pro user..." />
+		<copy todir="${package.pro.path}/user">
+			<fileset dir="${prou.path}" />
+		</copy>
+		<copy todir="${package.pro.path}/user/language/en-GB">
+			<fileset dir="${prou.language.path}">
+				<include name="en-GB.plg_user_chimpyourjoomlapro.ini" />
+			    <include name="en-GB.plg_user_chimpyourjoomlapro.sys.ini" />
+    		</fileset>
+		</copy>
+
+		<zip destfile="${package.pro.path}/final/chimpyourjoomlapro_user.zip" basedir="${package.pro.path}/user" />
+	</target>
+
 	<target name="package_pro_plugin">
-		<echo message="Building pro..." />
-		<copy todir="${package.pro.path}">
-			<fileset dir="${pro.path}" />
-		</copy>
-		<copy todir="${package.pro.path}/language">
-			<fileset dir="${pro.language.path}" />
+		<echo message="Building pro system..." />
+		<copy todir="${package.pro.path}/final">
+			<fileset dir="../src">
+			    <include name="pkg_chimpyourjoomlapro.xml" />
+			</fileset>
 		</copy>
 
-		<exec command="xmllint --xpath '/extension/version/text()' ${pro.path}/${pro.name}.xml" outputProperty="version" />
+		<exec command="xmllint --xpath '/extension/version/text()' pkg_chimpyourjoomlapro.xml" outputProperty="version" />
 
-		<zip destfile="${package.folder}/plg_system_${pro.name}_v${version}_j${joomla_version}.zip" basedir="${package.pro.path}" />
+		<zip destfile="${package.folder}/pkg_chimpyourjoomlapro_v${version}_j${joomla_version}.zip" basedir="${package.pro.path}/final" />
+
 	</target>
 </project>
