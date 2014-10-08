@@ -65,8 +65,8 @@
     		</fileset>
 		</copy>
 
-		<mkdir dir="${package.pro.path}/final" />
-		<zip destfile="${package.pro.path}/final/chimpyourjoomlapro_system.zip" basedir="${package.pro.path}/system" />
+		<mkdir dir="${package.pro.path}/final/packages" />
+		<zip destfile="${package.pro.path}/final/packages/chimpyourjoomlapro_system.zip" basedir="${package.pro.path}/system" />
 	</target>
 	<target name="package_prou_plugin">
 		<echo message="Building pro user..." />
@@ -80,7 +80,7 @@
     		</fileset>
 		</copy>
 
-		<zip destfile="${package.pro.path}/final/chimpyourjoomlapro_user.zip" basedir="${package.pro.path}/user" />
+		<zip destfile="${package.pro.path}/final/packages/chimpyourjoomlapro_user.zip" basedir="${package.pro.path}/user" />
 	</target>
 
 	<target name="package_pro_plugin">
