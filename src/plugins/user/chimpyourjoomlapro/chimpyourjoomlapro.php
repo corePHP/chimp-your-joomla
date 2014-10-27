@@ -35,7 +35,7 @@ class plgUserChimpYourJoomlaPro extends JPlugin
 								'LNAME'=>$name[1]
 								);
 
-			if( $chimp_auto == 1 ) {
+			if( $chimp_auto == 0 ) {
 				$chimp_auto = true;
 			} else {
 				$chimp_auto = false;
