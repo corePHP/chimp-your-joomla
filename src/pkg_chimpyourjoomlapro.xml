@@ -2,7 +2,7 @@
 <extension type="package" version="2.5" method="upgrade">
 	<name>Chimp Your Joomla! Pro Package</name>
 	<packagename>chimpyourjoomlapro</packagename>
-	<version>1.0.5</version>
+	<version>1.0.6</version>
 	<packager>'corePHP'</packager>
 	<description>Chimp Your Joomla! is a plugin that automatically adds users to your MailChimp list account when users register in Joomla!</description>
 	<files folder="packages">
