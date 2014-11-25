@@ -43,6 +43,7 @@ class plgUserChimpYourJoomlaPro extends JPlugin
 
 			if ( $isnew ) {
 				$added = mc::add( $mc, $chimp_list, $user['email'], $mergeVars, $chimp_auto );
+				return true;
 			} else {
 				// Need to check to see if the users exists first
 				$exists = mc::memberinfo( $mc, $chimp_list, $user['email'] );
@@ -55,11 +56,14 @@ class plgUserChimpYourJoomlaPro extends JPlugin
 							$added = mc::add( $mc, $chimp_list, $user['email'], $mergeVars, $chimp_auto );
 						}
 					}
+					return true;
 				} else {
 					$added = mc::add( $mc, $chimp_list, $user['email'], $mergeVars, $chimp_auto );
+					return true;
 				}
 			}
 		}
+		return;
 	}
 
 	function onUserAfterDelete( $user, $success, $msg )
