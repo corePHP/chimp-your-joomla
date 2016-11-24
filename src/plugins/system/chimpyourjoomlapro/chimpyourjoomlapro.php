@@ -43,7 +43,7 @@ class plgSystemChimpYourJoomlaPro extends JPlugin
 		$html = str_get_html($output);
 
 		// Get the login button (at least normally there's only one button)
-		$login_button = $html->find( '#member-registration button', 0); // Make this configurable in the XML
+		$login_button = $html->find( '#josForm button', 0); // Make this configurable in the XML
 
 		// In the place of the login button place the checkbox and the button
 		$login_button->outertext = $chimp_layout.$login_button->outertext;

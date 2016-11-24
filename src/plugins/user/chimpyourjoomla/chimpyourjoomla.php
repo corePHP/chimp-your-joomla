@@ -19,21 +19,23 @@ class plgUserChimpYourJoomla extends JPlugin
 
 			// Lets grab all the required params now
 			$chimp_api       = $this->params->get( 'chimp_api' );
-			$chimp_list      = $this->params->get( 'chimp_list' );
+			$list_id      = $this->params->get( 'chimp_list' );
 			$chimp_auto      = $this->params->get( 'chimp_auto', 0 );
 
 			// Just a quick check
-			if( !$chimp_api || !$chimp_list ) return;
+			if( !$chimp_api || !$list_id ) return;
 
 			// Lets put in our API key and set the $api value
-			$mc = new MailChimp( $chimp_api );
+			$MailChimp = new MailChimp( $chimp_api );
 
 			// Create a First and Last Name and place it in the $mergeVars
 			$name = explode( ' ', $user['name'] );
 
-			$mergeVars = array(	'FNAME'=>$name[0],
-								'LNAME'=>$name[1]
-								);
+			$mergeVars = array(	
+								'email_address'=> $user['email'],
+								'status'=>'subscribed',
+								"merge_fields"=> ["FNAME"=> $name[0],  "LNAME"=> $name[1]]
+							);
 
 			if( $chimp_auto == 1 ) {
 				$chimp_auto = true;
@@ -42,9 +44,10 @@ class plgUserChimpYourJoomla extends JPlugin
 			}
 
 			if ( $isnew ) {
-				mc::add( $mc, $chimp_list, $user['email'], $mergeVars, $chimp_auto );
+				$added = $MailChimp->post("lists/$list_id/members", $mergeVars);
 			} else {
-				mc::update( $mc, $chimp_list, $user['email'], $mergeVars );
+				$subscriber_hash = $MailChimp->subscriberHash($user['email']);
+				$MailChimp->patch("lists/$list_id/members/$subscriber_hash", ['merge_fields' => ['FNAME'=>$name[0], 'LNAME'=>$name[1]]]);
 			}
 		}
 	}

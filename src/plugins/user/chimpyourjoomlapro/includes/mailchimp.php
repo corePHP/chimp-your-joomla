@@ -1,181 +1,319 @@
 <?php
-/**
- * Super-simple, minimum abstraction MailChimp API v2 wrapper
- *
- * Uses curl if available, falls back to file_get_contents and HTTP stream.
- * This probably has more comments than code.
- *
- * Contributors:
- * Michael Minor <me@pixelbacon.com>
- * Lorna Jane Mitchell, github.com/lornajane
- *
- * @author Drew McLellan <drew.mclellan@gmail.com>
- * @version 1.1
- */
+
+/*namespace DrewM\MailChimp;*/
+
+
 class MailChimp
 {
-	private $api_key;
-	private $api_endpoint = 'https://<dc>.api.mailchimp.com/2.0';
-	private $verify_ssl   = false;
+    private $api_key;
+    private $api_endpoint = 'https://<dc>.api.mailchimp.com/3.0';
 
-	/**
-	 * Create a new instance
-	 * @param string $api_key Your MailChimp API key
-	 */
-	function __construct($api_key)
-	{
-		$this->api_key = $api_key;
-		list(, $datacentre) = explode('-', $this->api_key);
-		$this->api_endpoint = str_replace('<dc>', $datacentre, $this->api_endpoint);
-	}
+    /*  SSL Verification
+        Read before disabling:
+        http://snippets.webaware.com.au/howto/stop-turning-off-curlopt_ssl_verifypeer-and-fix-your-php-config/
+    */
+    public $verify_ssl = true;
 
+    private $request_successful = false;
+    private $last_error         = '';
+    private $last_response      = array();
+    private $last_request       = array();
 
-	/**
-	 * Call an API method. Every request needs the API key, so that is added automatically -- you don't need to pass it in.
-	 * @param  string $method The API method to call, e.g. 'lists/list'
-	 * @param  array  $args   An array of arguments to pass to the method. Will be json-encoded for you.
-	 * @return array          Associative array of json decoded API response.
-	 */
-	public function call($method, $args=array())
-	{
-		return $this->_raw_request($method, $args);
-	}
+    /**
+     * Create a new instance
+     * @param string $api_key Your MailChimp API key
+     * @throws \Exception
+     */
+    public function __construct($api_key)
+    {
+        $this->api_key = $api_key;
 
+        if (strpos($this->api_key, '-') === false) {
+            throw new \Exception("Invalid MailChimp API key `{$api_key}` supplied.");
+        }
 
-	/**
-	 * Performs the underlying HTTP request. Not very exciting
-	 * @param  string $method The API method to be called
-	 * @param  array  $args   Assoc array of parameters to be passed
-	 * @return array          Assoc array of decoded result
-	 */
-	private function _raw_request($method, $args=array())
-	{
-		$args['apikey'] = $this->api_key;
+        list(, $data_center) = explode('-', $this->api_key);
+        $this->api_endpoint  = str_replace('<dc>', $data_center, $this->api_endpoint);
 
-		$url = $this->api_endpoint.'/'.$method.'.json';
+        $this->last_response = array('headers' => null, 'body' => null);
+    }
 
-		if (function_exists('curl_init') && function_exists('curl_setopt')){
-			$ch = curl_init();
-			curl_setopt($ch, CURLOPT_URL, $url);
-			curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
-			curl_setopt($ch, CURLOPT_USERAGENT, 'PHP-MCAPI/2.0');
-			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-			curl_setopt($ch, CURLOPT_TIMEOUT, 10);
-			curl_setopt($ch, CURLOPT_POST, true);
-			curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, $this->verify_ssl);
-			curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($args));
-			$result = curl_exec($ch);
-			curl_close($ch);
-		}else{
-			$json_data = json_encode($args);
-			$result = file_get_contents($url, null, stream_context_create(array(
-				'http' => array(
-					'protocol_version' => 1.1,
-					'user_agent'       => 'PHP-MCAPI/2.0',
-					'method'           => 'POST',
-					'header'           => "Content-type: application/json\r\n".
-										  "Connection: close\r\n" .
-										  "Content-length: " . strlen($json_data) . "\r\n",
-					'content'          => $json_data,
-				),
-			)));
-		}
+    /**
+     * Create a new instance of a Batch request. Optionally with the ID of an existing batch.
+     * @param string $batch_id Optional ID of an existing batch, if you need to check its status for example.
+     * @return Batch            New Batch object.
+     */
+    public function new_batch($batch_id = null)
+    {
+        return new Batch($this, $batch_id);
+    }
 
-		return $result ? json_decode($result, true) : false;
-	}
-}
+    /**
+     * Convert an email address into a 'subscriber hash' for identifying the subscriber in a method URL
+     * @param   string $email The subscriber's email address
+     * @return  string          Hashed version of the input
+     */
+    public function subscriberHash($email)
+    {
+        return md5(strtolower($email));
+    }
 
-/********************************/
-/* Chimp Your Joomla! Class file */
-/********************************/
-class mc
-{
-	/********************************/
-	/* Error Checking before script runs */
-	/********************************/
-	public function error_check( $api, $import = null, $size = null )
-	{
-		$ping = $api->call( 'helper/ping' );
+    /**
+     * Was the last request successful?
+     * @return bool  True for success, false for failure
+     */
+    public function success()
+    {
+        return $this->request_successful;
+    }
 
-		// Check to see if the file exist
-		if( !file_exists( $import && $import != null ) ) {
-			return "File not found. Make sure you specified the correct path.\n";
-		}
+    /**
+     * Get the last error returned by either the network transport, or by the API.
+     * If something didn't work, this should contain the string describing the problem.
+     * @return  array|false  describing the error
+     */
+    public function getLastError()
+    {
+        return $this->last_error ?: false;
+    }
 
-		// Lets make sure everything is good with mailchimp
-		if( empty( $ping ) ) {
-			return "Mailchimp is having a problem?.\n";
-		}
+    /**
+     * Get an array containing the HTTP headers and the body of the API response.
+     * @return array  Assoc array with keys 'headers' and 'body'
+     */
+    public function getLastResponse()
+    {
+        return $this->last_response;
+    }
 
-		// Lets check to make sure it is not empty
-		if( !$size && $size != null ) {
-			return "File is empty.\n";
-		}
+    /**
+     * Get an array containing the HTTP headers and the body of the API request.
+     * @return array  Assoc array
+     */
+    public function getLastRequest()
+    {
+        return $this->last_request;
+    }
 
-		if( !is_file( $import ) ) {
-			return 'Not a file';
-		}
+    /**
+     * Make an HTTP DELETE request - for deleting data
+     * @param   string $method URL of the API request method
+     * @param   array $args Assoc array of arguments (if any)
+     * @param   int $timeout Timeout limit for request in seconds
+     * @return  array|false   Assoc array of API response, decoded from JSON
+     */
+    public function delete($method, $args = array(), $timeout = 10)
+    {
+        return $this->makeRequest('delete', $method, $args, $timeout);
+    }
 
-		if( !is_readable( $import ) ) {
-			return 'File Not readable';
-		}
+    /**
+     * Make an HTTP GET request - for retrieving data
+     * @param   string $method URL of the API request method
+     * @param   array $args Assoc array of arguments (usually your data)
+     * @param   int $timeout Timeout limit for request in seconds
+     * @return  array|false   Assoc array of API response, decoded from JSON
+     */
+    public function get($method, $args = array(), $timeout = 10)
+    {
+        return $this->makeRequest('get', $method, $args, $timeout);
+    }
 
-	}
+    /**
+     * Make an HTTP PATCH request - for performing partial updates
+     * @param   string $method URL of the API request method
+     * @param   array $args Assoc array of arguments (usually your data)
+     * @param   int $timeout Timeout limit for request in seconds
+     * @return  array|false   Assoc array of API response, decoded from JSON
+     */
+    public function patch($method, $args = array(), $timeout = 10)
+    {
+        return $this->makeRequest('patch', $method, $args, $timeout);
+    }
 
-	public function add( $api, $list_id, $email, $mergeVars, $chimp_auto )
-	{
-		return $api->call( 'lists/subscribe',
-						array(
-								'id' => $list_id,
-								'email' => array( 'email' => $email ),
-								'merge_vars' => $mergeVars,
-								'double_optin' => $chimp_auto
-						)
-					);
-	}
+    /**
+     * Make an HTTP POST request - for creating and updating items
+     * @param   string $method URL of the API request method
+     * @param   array $args Assoc array of arguments (usually your data)
+     * @param   int $timeout Timeout limit for request in seconds
+     * @return  array|false   Assoc array of API response, decoded from JSON
+     */
+    public function post($method, $args = array(), $timeout = 10)
+    {
+        return $this->makeRequest('post', $method, $args, $timeout);
+    }
 
-	public function update( $api, $list_id, $email, $mergeVars )
-	{
-		return $api->call( 'lists/update-member',
-						array(
-								'id' => $list_id,
-								'email' => array( 'email' => $email ),
-								'merge_vars' => $mergeVars
-						)
-					);
-	}
+    /**
+     * Make an HTTP PUT request - for creating new items
+     * @param   string $method URL of the API request method
+     * @param   array $args Assoc array of arguments (usually your data)
+     * @param   int $timeout Timeout limit for request in seconds
+     * @return  array|false   Assoc array of API response, decoded from JSON
+     */
+    public function put($method, $args = array(), $timeout = 10)
+    {
+        return $this->makeRequest('put', $method, $args, $timeout);
+    }
 
-	public function unsubscribe( $api, $list_id, $email, $delete_member, $send_goodbye )
-	{
-		return $api->call( 'lists/unsubscribe',
-						array(
-								'id' => $list_id,
-								'email' => array( 'email' => $email ),
-								'delete_member' => $delete_member,
-								'send_goodbye' => $send_goodbye
-						)
-					);
-	}
+    /**
+     * Performs the underlying HTTP request. Not very exciting.
+     * @param  string $http_verb The HTTP verb to use: get, post, put, patch, delete
+     * @param  string $method The API method to be called
+     * @param  array $args Assoc array of parameters to be passed
+     * @param int $timeout
+     * @return array|false Assoc array of decoded result
+     * @throws \Exception
+     */
+    private function makeRequest($http_verb, $method, $args = array(), $timeout = 10)
+    {
+        if (!function_exists('curl_init') || !function_exists('curl_setopt')) {
+            throw new \Exception("cURL support is required, but can't be found.");
+        }
 
-	public function batch_update( $api, $list_id, $batch, $chimp_auto )
-	{
-		return $api->call( 'lists/batch-subscribe',
-						array(
-								'id' => $list_id,
-								'batch' => $batch,
-								'double_optin' => $chimp_auto,
-								'update_existing' => true
-						)
-					);
-	}
+        $url = $this->api_endpoint . '/' . $method;
 
-	public function memberinfo( $api, $list_id, $email )
-	{
-		return $api->call( 'lists/member-info',
-						array(
-								'id' => $list_id,
-								'emails' => array( array( 'email' => $email ) )
-						)
-					);
-	}
+        $this->last_error         = '';
+        $this->request_successful = false;
+        $response                 = array('headers' => null, 'body' => null);
+        $this->last_response      = $response;
+
+        $this->last_request = array(
+            'method'  => $http_verb,
+            'path'    => $method,
+            'url'     => $url,
+            'body'    => '',
+            'timeout' => $timeout,
+        );
+
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+            'Accept: application/vnd.api+json',
+            'Content-Type: application/vnd.api+json',
+            'Authorization: apikey ' . $this->api_key
+        ));
+        curl_setopt($ch, CURLOPT_USERAGENT, 'DrewM/MailChimp-API/3.0 (github.com/drewm/mailchimp-api)');
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, $this->verify_ssl);
+        curl_setopt($ch, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_0);
+        curl_setopt($ch, CURLOPT_ENCODING, '');
+        curl_setopt($ch, CURLINFO_HEADER_OUT, true);
+
+        switch ($http_verb) {
+            case 'post':
+                curl_setopt($ch, CURLOPT_POST, true);
+                $this->attachRequestPayload($ch, $args);
+                break;
+
+            case 'get':
+                $query = http_build_query($args, '', '&');
+                curl_setopt($ch, CURLOPT_URL, $url . '?' . $query);
+                break;
+
+            case 'delete':
+                curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'DELETE');
+                break;
+
+            case 'patch':
+                curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PATCH');
+                $this->attachRequestPayload($ch, $args);
+                break;
+
+            case 'put':
+                curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PUT');
+                $this->attachRequestPayload($ch, $args);
+                break;
+        }
+
+        $response['body']    = curl_exec($ch);
+        $response['headers'] = curl_getinfo($ch);
+
+        if (isset($response['headers']['request_header'])) {
+            $this->last_request['headers'] = $response['headers']['request_header'];
+        }
+
+        if ($response['body'] === false) {
+            $this->last_error = curl_error($ch);
+        }
+
+        curl_close($ch);
+
+        $formattedResponse = $this->formatResponse($response);
+
+        $this->determineSuccess($response, $formattedResponse);
+
+        return $formattedResponse;
+    }
+
+    /**
+     * Encode the data and attach it to the request
+     * @param   resource $ch cURL session handle, used by reference
+     * @param   array $data Assoc array of data to attach
+     */
+    private function attachRequestPayload(&$ch, $data)
+    {
+        $encoded = json_encode($data);
+        $this->last_request['body'] = $encoded;
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $encoded);
+    }
+
+    /**
+     * Decode the response and format any error messages for debugging
+     * @param array $response The response from the curl request
+     * @return array|false    The JSON decoded into an array
+     */
+    private function formatResponse($response)
+    {
+        $this->last_response = $response;
+
+        if (!empty($response['body'])) {
+            return json_decode($response['body'], true);
+        }
+
+        return false;
+    }
+
+    /**
+     * Check if the response was successful or a failure. If it failed, store the error.
+     * @param array $response The response from the curl request
+     * @param array|false $formattedResponse The response body payload from the curl request
+     * @return bool     If the request was successful
+     */
+    private function determineSuccess($response, $formattedResponse)
+    {
+        $status = $this->findHTTPStatus($response, $formattedResponse);
+
+        if ($status >= 200 && $status <= 299) {
+            $this->request_successful = true;
+            return true;
+        }
+
+        if (isset($formattedResponse['detail'])) {
+            $this->last_error = sprintf('%d: %s', $formattedResponse['status'], $formattedResponse['detail']);
+            return false;
+        }
+
+        $this->last_error = 'Unknown error, call getLastResponse() to find out what happened.';
+        return false;
+    }
+
+    /**
+     * Find the HTTP status code from the headers or API response body
+     * @param array $response The response from the curl request
+     * @param array|false $formattedResponse The response body payload from the curl request
+     * @return int  HTTP status code
+     */
+    private function findHTTPStatus($response, $formattedResponse)
+    {
+        if (!empty($response['headers']) && isset($response['headers']['http_code'])) {
+            return (int) $response['headers']['http_code'];
+        }
+
+        if (!empty($response['body']) && isset($formattedResponse['status'])) {
+            return (int) $formattedResponse['status'];
+        }
+
+        return 418;
+    }
 }
