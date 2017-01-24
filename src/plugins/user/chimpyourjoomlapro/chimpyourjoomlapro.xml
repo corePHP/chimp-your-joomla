@@ -7,7 +7,7 @@
 	<authorUrl>http://www.corephp.com</authorUrl>
 	<copyright>(C) 2014 'corePHP', All rights reserved.</copyright>
 	<license>http://www.gnu.org/copyleft/gpl.html GNU/GPL</license>
-	<version>1.0.6</version>
+	<version>3.0</version>
 	<description>Chimp Your Joomla! is a plugin that automatically adds users to your MailChimp list account when users register in Joomla!</description>
 
 	<files>
